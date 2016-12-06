@@ -71,7 +71,7 @@ namespace ToDoList
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, category_Id, dueDate) OUTPUT INSERTED.id VALUES (@TaskDescription, @taskCategoryId, @taskDueDate);", conn);
+      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, category_Id, due_date) OUTPUT INSERTED.id VALUES (@TaskDescription, @taskCategoryId, @taskDueDate);", conn);
 
       SqlParameter descriptionParameter = new SqlParameter();
       descriptionParameter.ParameterName = "@TaskDescription";

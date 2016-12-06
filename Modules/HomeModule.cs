@@ -1,7 +1,7 @@
 using Nancy;
 using System.Collections.Generic;
 using Nancy.ViewEngines.Razor;
-using ToDoList.Objects;
+
 
 namespace ToDoList
 {
@@ -22,7 +22,7 @@ namespace ToDoList
             return View ["tasks.cshtml", AllTasks];
           };
           Get["/categories/new"] = _ => {
-            return View["category_form.cshtml"];
+            return View["categories_form.cshtml"];
           };
           Post["/categories/new"] = _ => {
             Category newCategory = new Category(Request.Form["category-name"]);
@@ -48,27 +48,6 @@ namespace ToDoList
             var categoryTasks = selectedCategory.GetTasks();
             model.Add("category", selectedCategory);
             model.Add("tasks", categoryTasks);
-            return View["category.cshtml", model];
-          };
-
-          Get["/categories/{id}/tasks/new"] = parameters => {
-            Dictionary<string, object> model = new Dictionary<string, object>();
-            Category selectedCategory = Category.Find(parameters.id);
-            List<Task> allTasks = selectedCategory.GetTasks();
-            model.Add("category", selectedCategory);
-            model.Add("tasks", allTasks);
-            return View["category_tasks_form.cshtml", model];
-          };
-          Post["/tasks"] = _ => {
-            Dictionary<string, object> model = new Dictionary<string, object>();
-            Category selectedCategory = Category.Find(Request.Form["category-id"]);
-            List<Task> categoryTasks = selectedCategory.GetTasks();
-            string taskDescription = Request.Form["task-description"];
-            var dueDate = Request.Form["due-date"];
-            Task newTask = new Task(taskDescription, dueDate);
-            categoryTasks.Add(newTask);
-            model.Add("tasks", categoryTasks);
-            model.Add("category", selectedCategory);
             return View["category.cshtml", model];
           };
         }
