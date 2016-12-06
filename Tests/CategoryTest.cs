@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace ToDoList
   {
-    public class CategoryTest //: IDisposable
+    public class CategoryTest : IDisposable
     {
       public CategoryTest()
       {
@@ -41,6 +41,21 @@ namespace ToDoList
 
         Assert.Equal(testList, result);
       }
-    }
 
+      [Fact]
+      public void Test_Find_FindsCategoryInDatabase()
+      {
+        Category testCategory = new Category("Household chores");
+        testCategory.Save();
+
+        Category foundCategory = Category.Find(testCategory.GetId());
+
+        Assert.Equal(testCategory, foundCategory);
+      }
+      public void Dispose()
+      {
+        Category.DeleteAll();
+        Task.DeleteAll();
+      }
+    }
   }
