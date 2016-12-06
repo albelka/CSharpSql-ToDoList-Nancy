@@ -124,6 +124,39 @@ namespace ToDoList
       }
       return foundCategory;
     }
+
+    public List<Task> GetTasks()
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+
+      SqlCommand cmd = new SqlCommand("SELECT * FROM tasks WHERE category_id = @CategoryId;", conn);
+      SqlParameter categoryIdParameter = new SqlParameter();
+      categoryIdParameter.ParameterName = "@CategoryId";
+      categoryIdParameter.Value = this.GetId();
+      cmd.Parameters.Add(categoryIdParameter);
+      SqlDataReader rdr = cmd.ExecuteReader();
+
+      List<Task> task = new List<Task> {};
+      while(rdr.Read())
+      {
+        int taskId = rdr.GetInt32(0);
+        string taskDescription = rdr.GetString(1);
+        int taskCategoryId = rdr.GetInt32(2);
+        string taskDueDate = rdr.GetString(3)
+        Task newTask = new Task(taskDescription, taskCategoryId, dueDate, taskId);
+        task.Add(newTask);
+      }
+      if (rdr != null)
+      {
+        rdr.Close();
+      }
+      if( conn != null)
+      {
+        conn.Close();
+      }
+      return task;
+    }
     public static void DeleteAll()
     {
       SqlConnection conn = DB.Connection();

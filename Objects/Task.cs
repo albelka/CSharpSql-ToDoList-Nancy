@@ -8,11 +8,15 @@ namespace ToDoList
   {
     private int _id;
     private string _description;
+    private int _categoryId;
+    private string _dueDate;
 
-    public Task(string Description, int Id = 0)
+    public Task(string Description, int CategoryId, string DueDate, int Id = 0)
     {
       _id = Id;
       _description = Description;
+      _categoryId = CategoryId;
+      _dueDate = DueDate;
     }
 
     public override bool Equals(System.Object otherTask)
@@ -26,8 +30,27 @@ namespace ToDoList
         Task newTask = (Task) otherTask;
         bool idEquality = (this.GetId() == newTask.GetId());
         bool descriptionEquality = (this.GetDescription() == newTask.GetDescription());
-        return (idEquality && descriptionEquality);
+        bool categoryEquality = this.GetCategoryId() == newTask.GetCategoryId();
+        bool dueDateEquality = this.GetDueDate() == newTask.GetDueDate();
+        return (idEquality && descriptionEquality && categoryEquality && dueDateEquality);
       }
+    }
+    public string GetDueDate()
+    {
+      return _dueDate;
+    }
+    public void SetDueDate(string newDueDate)
+    {
+      _dueDate = newDueDate;
+    }
+    public int GetCategoryId()
+    {
+      return _categoryId;
+    }
+
+    public void SetCategoryId(int newCategoryId)
+    {
+      _categoryId = newCategoryId;
     }
 
     public int GetId()
@@ -48,12 +71,23 @@ namespace ToDoList
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description) OUTPUT INSERTED.id VALUES (@TaskDescription);", conn);
+      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, category_Id, dueDate) OUTPUT INSERTED.id VALUES (@TaskDescription, @taskCategoryId, @taskDueDate);", conn);
 
       SqlParameter descriptionParameter = new SqlParameter();
       descriptionParameter.ParameterName = "@TaskDescription";
       descriptionParameter.Value = this.GetDescription();
+
+      SqlParameter categoryIdParameter = new SqlParameter();
+      categoryIdParameter.ParameterName = "@taskCategoryId";
+      categoryIdParameter.Value = this.GetCategoryId();
+
+      SqlParameter dueDateParameter = new SqlParameter();
+      dueDateParameter.ParameterName = "@taskDueDate";
+      dueDateParameter.Value = this.GetDueDate();
+
       cmd.Parameters.Add(descriptionParameter);
+      cmd.Parameters.Add(categoryIdParameter);
+      cmd.Parameters.Add(dueDateParameter);
       SqlDataReader rdr = cmd.ExecuteReader();
 
       while(rdr.Read())
@@ -84,12 +118,16 @@ namespace ToDoList
 
       int foundTaskId = 0;
       string foundTaskDescription = null;
+      int foundTaskCategoryId = 0;
+      string foundDueDate = null;
       while(rdr.Read())
       {
         foundTaskId = rdr.GetInt32(0);
         foundTaskDescription = rdr.GetString(1);
+        foundTaskCategoryId = rdr.GetInt32(2);
+        foundDueDate = rdr.GetString(3);
       }
-      Task foundTask = new Task(foundTaskDescription, foundTaskId);
+      Task foundTask = new Task(foundTaskDescription, foundTaskCategoryId, foundDueDate, foundTaskId);
 
       if (rdr != null)
       {
@@ -116,7 +154,9 @@ namespace ToDoList
       {
         int taskId = rdr.GetInt32(0);
         string taskDescription = rdr.GetString(1);
-        Task newTask = new Task(taskDescription, taskId);
+        int taskCategoryId = rdr.GetInt32(2);
+        string taskDueDate = rdr.GetString(3);
+        Task newTask = new Task(taskDescription, taskCategoryId, taskDueDate, taskId);
         allTasks.Add(newTask);
       }
 
@@ -131,6 +171,8 @@ namespace ToDoList
 
       return allTasks;
     }
+
+
 
     public static void DeleteAll()
     {
