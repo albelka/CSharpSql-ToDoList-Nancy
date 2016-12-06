@@ -143,7 +143,7 @@ namespace ToDoList
         int taskId = rdr.GetInt32(0);
         string taskDescription = rdr.GetString(1);
         int taskCategoryId = rdr.GetInt32(2);
-        string taskDueDate = rdr.GetString(3);
+        DateTime taskDueDate = rdr.GetDateTime(3);
         Task newTask = new Task(taskDescription, taskCategoryId, taskDueDate, taskId);
         task.Add(newTask);
       }

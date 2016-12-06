@@ -9,9 +9,9 @@ namespace ToDoList
     private int _id;
     private string _description;
     private int _categoryId;
-    private string _dueDate;
+    private DateTime _dueDate;
 
-    public Task(string Description, int CategoryId, string DueDate, int Id = 0)
+    public Task(string Description, int CategoryId, DateTime DueDate, int Id = 0)
     {
       _id = Id;
       _description = Description;
@@ -35,11 +35,11 @@ namespace ToDoList
         return (idEquality && descriptionEquality && categoryEquality && dueDateEquality);
       }
     }
-    public string GetDueDate()
+    public DateTime GetDueDate()
     {
       return _dueDate;
     }
-    public void SetDueDate(string newDueDate)
+    public void SetDueDate(DateTime newDueDate)
     {
       _dueDate = newDueDate;
     }
@@ -119,13 +119,13 @@ namespace ToDoList
       int foundTaskId = 0;
       string foundTaskDescription = null;
       int foundTaskCategoryId = 0;
-      string foundDueDate = null;
+      DateTime foundDueDate = DateTime.Today;
       while(rdr.Read())
       {
         foundTaskId = rdr.GetInt32(0);
         foundTaskDescription = rdr.GetString(1);
         foundTaskCategoryId = rdr.GetInt32(2);
-        foundDueDate = rdr.GetString(3);
+        foundDueDate = rdr.GetDateTime(3);
       }
       Task foundTask = new Task(foundTaskDescription, foundTaskCategoryId, foundDueDate, foundTaskId);
 
@@ -147,7 +147,7 @@ namespace ToDoList
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("SELECT * FROM tasks;", conn);
+      SqlCommand cmd = new SqlCommand("SELECT * FROM tasks ORDER BY due_date;", conn);
       SqlDataReader rdr = cmd.ExecuteReader();
 
       while (rdr.Read())
@@ -155,7 +155,7 @@ namespace ToDoList
         int taskId = rdr.GetInt32(0);
         string taskDescription = rdr.GetString(1);
         int taskCategoryId = rdr.GetInt32(2);
-        string taskDueDate = rdr.GetString(3);
+        DateTime taskDueDate = rdr.GetDateTime(3);
         Task newTask = new Task(taskDescription, taskCategoryId, taskDueDate, taskId);
         allTasks.Add(newTask);
       }

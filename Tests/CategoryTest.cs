@@ -59,9 +59,9 @@ namespace ToDoList
         Category testCategory = new Category("Household chores");
         testCategory.Save();
 
-        Task firstTask = new Task("Mow the lawn", testCategory.GetId(), "Tueday");
+        Task firstTask = new Task("Mow the lawn", testCategory.GetId(), DateTime.Today);
         firstTask.Save();
-        Task secondTask = new Task("Do the dishes", testCategory.GetId(), "Tuesday");
+        Task secondTask = new Task("Do the dishes", testCategory.GetId(), DateTime.Today);
         secondTask.Save();
 
         List<Task> testTaskList = new List<Task> {firstTask, secondTask};
