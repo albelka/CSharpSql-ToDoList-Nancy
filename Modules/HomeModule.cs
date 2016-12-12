@@ -29,6 +29,15 @@ namespace ToDoList
             newCategory.Save();
             return View["success.cshtml"];
           };
+          Get["category/edit/{id}"] = parameters => {
+            Category SelectedCategory = Category.Find(parameters.id);
+            return View["category_edit.cshtml", SelectedCategory];
+          };
+          Patch["category/edit/{id}"] = parameters => {
+            Category SelectedCategory = Category.Find(parameters.id);
+            SelectedCategory.Update(Request.Form["category-name"]);
+            return View["success.cshtml"];
+          };
           Get["/tasks/new"] = _ => {
             List<Category> AllCategories = Category.GetAll();
             return View["tasks_form.cshtml", AllCategories];
