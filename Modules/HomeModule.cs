@@ -38,6 +38,15 @@ namespace ToDoList
             SelectedCategory.Update(Request.Form["category-name"]);
             return View["success.cshtml"];
           };
+          Get["category/delete/{id}"] = parameters => {
+            Category SelectedCategory = Category.Find(parameters.id);
+            return View["category_delete.cshtml", SelectedCategory];
+          };
+          Delete["category/delete/{id}"] = parameters => {
+            Category SelectedCategory = Category.Find(parameters.id);
+            SelectedCategory.Delete();
+            return View["success.cshtml"];
+          };
           Get["/tasks/new"] = _ => {
             List<Category> AllCategories = Category.GetAll();
             return View["tasks_form.cshtml", AllCategories];
@@ -48,6 +57,7 @@ namespace ToDoList
             return View["success.cshtml"];
           };
           Post["/tasks/delete"] = _ => {
+
             Task.DeleteAll();
             return View["cleared.cshtml"];
           };
@@ -82,6 +92,11 @@ namespace ToDoList
             Task task = Task.Find(Request.Form["task-id"]);
             category.AddTask(task);
             return View["success.cshtml"];
+          };
+          Get["/task/delete/{id}"] = parameters => {
+            Task SelectedTask = Task.Find(parameters.id);
+            SelectedTask.Delete();
+            return View["/success.cshtml"];
           };
         }
       }

@@ -129,6 +129,23 @@ namespace ToDoList
       //Assert
       Assert.Equal(testCategoryTasks, resultCategoryTasks);
     }
+    [Fact]
+    public void Test_Delete_DeletesTaskFromDatabase()
+    {
+      //Arrange
+      Task testTask1 = new Task("Mow the lawn", DateTime.Today);
+      testTask1.Save();
+      Task testTask2 = new Task("Send emails", DateTime.Today);
+      testTask2.Save();
+
+      //Act
+      testTask1.Delete();
+      List<Task> resultTasks = Task.GetAll();
+      List<Task> testTaskList = new List<Task> {testTask2};
+
+      //Assert
+      Assert.Equal(testTaskList, resultTasks);
+    }
 
     public void Dispose()
     {
