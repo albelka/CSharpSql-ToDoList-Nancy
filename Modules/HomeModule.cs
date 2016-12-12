@@ -34,7 +34,7 @@ namespace ToDoList
             return View["tasks_form.cshtml", AllCategories];
           };
           Post["/tasks/new"] = _ => {
-            Task newTask = new Task(Request.Form["task-description"], Request.Form["category-id"], Request.Form["due-date"]);
+            Task newTask = new Task(Request.Form["task-description"], Request.Form["due-date"]);
             newTask.Save();
             return View["success.cshtml"];
           };
@@ -61,7 +61,19 @@ namespace ToDoList
             model.Add("taskCategories", allCategories);
             model.Add("allCategories", allCategories);
             return View["task.cshtml", model];
-          }
+          };
+          Post["task/add_category"] = _ => {
+            Category category = Category.Find(Request.Form["category-id"]);
+            Task task = Task.Find(Request.Form["task-id"]);
+            task.AddCategory(category);
+            return View["success.cshtml"];
+          };
+          Post["category/add_task"] = _ => {
+            Category category = Category.Find(Request.Form["category-id"]);
+            Task task = Task.Find(Request.Form["task-id"]);
+            category.AddTask(task);
+            return View["success.cshtml"];
+          };
         }
       }
     }
