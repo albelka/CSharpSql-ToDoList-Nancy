@@ -46,10 +46,22 @@ namespace ToDoList
             Dictionary<string, object> model = new Dictionary<string, object>();
             var selectedCategory = Category.Find(parameters.id);
             var categoryTasks = selectedCategory.GetTasks();
+            var AllTasks = Task.GetAll();
             model.Add("category", selectedCategory);
-            model.Add("tasks", categoryTasks);
+            model.Add("categoryTasks", categoryTasks);
+            model.Add("allTasks", AllTasks);
             return View["category.cshtml", model];
           };
+          Get["tasks/{id}"] = parameters => {
+            Dictionary<string, object> model = new Dictionary<string, object>();
+            Task SelectedTask = Task.Find(parameters.id);
+            List<Category> taskCategories = SelectedTask.GetCategories();
+            List<Category> allCategories = Category.GetAll();
+            model.Add("task", SelectedTask);
+            model.Add("taskCategories", allCategories);
+            model.Add("allCategories", allCategories);
+            return View["task.cshtml", model];
+          }
         }
       }
     }
