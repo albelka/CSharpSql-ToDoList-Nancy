@@ -9,12 +9,14 @@ namespace ToDoList
     private int _id;
     private string _description;
     private DateTime _dueDate;
+    private bool _done;
 
-    public Task(string Description, DateTime DueDate, int Id = 0)
+    public Task(string Description, DateTime DueDate, bool Done=false, int Id = 0)
     {
       _id = Id;
       _description = Description;
       _dueDate = DueDate;
+      _done = Done;
     }
 
     public override bool Equals(System.Object otherTask)
@@ -29,8 +31,17 @@ namespace ToDoList
         bool idEquality = (this.GetId() == newTask.GetId());
         bool descriptionEquality = (this.GetDescription() == newTask.GetDescription());
         bool dueDateEquality = this.GetDueDate() == newTask.GetDueDate();
-        return (idEquality && descriptionEquality && dueDateEquality);
+        bool doneEquality = this.GetDone() == newTask.GetDone();
+        return (idEquality && descriptionEquality && dueDateEquality && doneEquality);
       }
+    }
+    public bool GetDone()
+    {
+      return _done;
+    }
+    public void SetDone(bool newDone)
+    {
+      _done = newDone;
     }
     public DateTime GetDueDate()
     {
@@ -58,7 +69,7 @@ namespace ToDoList
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, due_date) OUTPUT INSERTED.id VALUES (@TaskDescription, @taskDueDate);", conn);
+      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, due_date, done) OUTPUT INSERTED.id VALUES (@TaskDescription, @taskDueDate, @taskDone);", conn);
 
       SqlParameter descriptionParameter = new SqlParameter();
       descriptionParameter.ParameterName = "@TaskDescription";
@@ -68,8 +79,13 @@ namespace ToDoList
       dueDateParameter.ParameterName = "@taskDueDate";
       dueDateParameter.Value = this.GetDueDate();
 
+      SqlParameter doneParameter = new SqlParameter();
+      doneParameter.ParameterName = "@taskDone";
+      doneParameter.Value = this.GetDone();
+
       cmd.Parameters.Add(descriptionParameter);
       cmd.Parameters.Add(dueDateParameter);
+      cmd.Parameters.Add(doneParameter);
       SqlDataReader rdr = cmd.ExecuteReader();
 
       while(rdr.Read())
@@ -101,13 +117,15 @@ namespace ToDoList
       int foundTaskId = 0;
       string foundTaskDescription = null;
       DateTime foundDueDate = DateTime.Today;
+      bool foundDone = false;
       while(rdr.Read())
       {
         foundTaskId = rdr.GetInt32(0);
         foundTaskDescription = rdr.GetString(1);
         foundDueDate = rdr.GetDateTime(2);
+        foundDone = rdr.GetBoolean(3);
       }
-      Task foundTask = new Task(foundTaskDescription, foundDueDate, foundTaskId);
+      Task foundTask = new Task(foundTaskDescription, foundDueDate, foundDone, foundTaskId);
 
       if (rdr != null)
       {
@@ -135,7 +153,39 @@ namespace ToDoList
         int taskId = rdr.GetInt32(0);
         string taskDescription = rdr.GetString(1);
         DateTime taskDueDate = rdr.GetDateTime(2);
-        Task newTask = new Task(taskDescription, taskDueDate, taskId);
+        bool taskDone = rdr.GetBoolean(3);
+        Task newTask = new Task(taskDescription, taskDueDate, taskDone, taskId);
+        allTasks.Add(newTask);
+      }
+
+      if (rdr != null)
+      {
+        rdr.Close();
+      }
+      if (conn != null)
+      {
+        conn.Close();
+      }
+
+      return allTasks;
+    }
+    public static List<Task> GetAllCompletedTasks()
+    {
+      List<Task> allTasks = new List<Task>{};
+
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+
+      SqlCommand cmd = new SqlCommand("SELECT * FROM tasks WHERE done = 1 ORDER BY due_date;", conn);
+      SqlDataReader rdr = cmd.ExecuteReader();
+
+      while (rdr.Read())
+      {
+        int taskId = rdr.GetInt32(0);
+        string taskDescription = rdr.GetString(1);
+        DateTime taskDueDate = rdr.GetDateTime(2);
+        bool taskDone = rdr.GetBoolean(3);
+        Task newTask = new Task(taskDescription, taskDueDate, taskDone, taskId);
         allTasks.Add(newTask);
       }
 
@@ -251,6 +301,24 @@ namespace ToDoList
         conn.Close();
       }
       return categories;
+    }
+    public void MarkDone()
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+      SqlCommand cmd = new SqlCommand("UPDATE tasks SET done = 1 WHERE id=@TaskId;", conn);
+
+      SqlParameter taskIdParameter = new SqlParameter();
+      taskIdParameter.ParameterName = "@TaskId";
+      taskIdParameter.Value = this.GetId();
+      cmd.Parameters.Add(taskIdParameter);
+
+      cmd.ExecuteNonQuery();
+
+      if (conn != null)
+      {
+        conn.Close();
+      }
     }
 
     public static void DeleteAll()

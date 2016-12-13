@@ -98,6 +98,20 @@ namespace ToDoList
             SelectedTask.Delete();
             return View["/success.cshtml"];
           };
+          Get["/task/done/{id}"] = parameters => {
+            List<Task> completedTasks = new List<Task>{};
+            Task SelectedTask = Task.Find(parameters.id);
+            SelectedTask.MarkDone();
+            completedTasks.Add(SelectedTask);
+            return View["/completed_tasks.cshtml", completedTasks];
+          };
+          Patch["/task/done/{id}"] = parameters => {
+            List<Task> completedTasks = new List<Task>{};
+            Task SelectedTask = Task.Find(parameters.id);
+            SelectedTask.MarkDone();
+            completedTasks= Task.GetAllCompletedTasks();
+            return View["/completed_tasks.cshtml", completedTasks];
+          };
         }
       }
     }
